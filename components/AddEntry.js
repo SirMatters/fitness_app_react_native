@@ -7,6 +7,7 @@ import DateHeader from './DateHeader';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Ionicons } from 'react-native-vector-icons';
 import TextButton from './TextButton';
+import { submitEntry, removeEntry } from '../utils/api';
 
 function SubmitBtn({ onPress }) {
   return (
@@ -58,7 +59,9 @@ export default class AddEntry extends React.Component {
       eat: 0,
     }));
     // Navigate to home
+
     // Save to DB
+    submitEntry({ key, entry });
     // Clear local notification
   };
 
@@ -70,6 +73,7 @@ export default class AddEntry extends React.Component {
     // Route to home
 
     // Update DB
+    removeEntry(key);
   };
 
   render() {
