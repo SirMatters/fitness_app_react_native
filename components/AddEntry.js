@@ -5,6 +5,8 @@ import UdaciSlider from './UdaciSlider';
 import UdaciStepper from './UdaciStepper';
 import DateHeader from './DateHeader';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { Ionicons } from 'react-native-vector-icons';
+import TextButton from './TextButton';
 
 function SubmitBtn({ onPress }) {
   return (
@@ -60,9 +62,30 @@ export default class AddEntry extends React.Component {
     // Clear local notification
   };
 
+  reset = () => {
+    const key = timeToString();
+
+    // Update redux
+
+    // Route to home
+
+    // Update DB
+  };
+
   render() {
     const metaInfo = getMetricMetaInfo();
     const date = new Date().toLocaleDateString();
+
+    if (this.props.alreadyLogged()) {
+      return (
+        <View>
+          <Ionicons name='ios-happy' size={100} />
+          <Text>You have already logged in your today's data</Text>
+          <TextButton onPress={this.reset}>Reset</TextButton>
+        </View>
+      );
+    }
+
     return (
       <View>
         <DateHeader date={date} />
