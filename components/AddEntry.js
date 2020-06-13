@@ -8,6 +8,9 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Ionicons } from 'react-native-vector-icons';
 import TextButton from './TextButton';
 import { submitEntry, removeEntry } from '../utils/api';
+import { connect } from 'react-redux';
+import { addEntry } from '../actions';
+import { getDailyReminderValue } from '../utils/helpers';
 
 function SubmitBtn({ onPress }) {
   return (
@@ -16,7 +19,7 @@ function SubmitBtn({ onPress }) {
     </TouchableOpacity>
   );
 }
-export default class AddEntry extends React.Component {
+class AddEntry extends React.Component {
   state = {
     run: 0,
     bike: 0,
@@ -51,6 +54,12 @@ export default class AddEntry extends React.Component {
     const entry = this.state;
 
     // Update Redux
+    this.props.dispatch(
+      addEntry({
+        [key]: entry,
+      })
+    );
+
     this.setState(() => ({
       run: 0,
       bike: 0,
@@ -69,7 +78,11 @@ export default class AddEntry extends React.Component {
     const key = timeToString();
 
     // Update redux
-
+    this.props.dispatch(
+      addEntry({
+        [key]: getDailyReminderValue(),
+      })
+    );
     // Route to home
 
     // Update DB
@@ -80,7 +93,7 @@ export default class AddEntry extends React.Component {
     const metaInfo = getMetricMetaInfo();
     const date = new Date().toLocaleDateString();
 
-    if (this.props.alreadyLogged()) {
+    if (this.props.alreadyLogged) {
       return (
         <View>
           <Ionicons name='ios-happy' size={100} />
@@ -129,3 +142,13 @@ export default class AddEntry extends React.Component {
     );
   }
 }
+
+function mapStateToProps(state) {
+  const key = timeToString();
+
+  return {
+    alreadyLogged: state[key] && typeof state[key].today === 'undefined',
+  };
+}
+
+export default connect(mapStateToProps)(AddEntry);
