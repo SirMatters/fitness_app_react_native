@@ -20,7 +20,7 @@ export default class App extends React.Component {
         ? createBottomTabNavigator()
         : createMaterialTopTabNavigator();
 
-    const RouteConfigs = {
+    const routeConfigs = {
       History: {
         name: 'History',
         component: History,
@@ -43,7 +43,7 @@ export default class App extends React.Component {
       },
     };
 
-    const TabNavigatorConfig = {
+    const tabNavigatorConfig = {
       navigationOptions: {
         header: null,
       },
@@ -72,35 +72,47 @@ export default class App extends React.Component {
     }
 
     const TabNav = () => (
-      <Tab.Navigator {...TabNavigatorConfig}>
-        <Tab.Screen {...RouteConfigs['History']} />
-        <Tab.Screen {...RouteConfigs['AddEntry']} />
+      <Tab.Navigator {...tabNavigatorConfig}>
+        <Tab.Screen {...routeConfigs.History} />
+        <Tab.Screen {...routeConfigs.AddEntry} />
       </Tab.Navigator>
     );
 
+    const stackNavigatorConfig = {
+      headerMode: 'screen',
+    };
+
+    const stackConfig = {
+      TabNav: {
+        name: 'Home',
+        component: TabNav,
+        options: { headerShown: false },
+      },
+      EntryDetail: {
+        name: 'EntryDetail',
+        component: EntryDetail,
+        options: {
+          headerTintColor: white,
+          headerStyle: {
+            backgroundColor: purple,
+          },
+          title: 'Entry Detail',
+        },
+      },
+    };
+
     const Stack = createStackNavigator();
     const MainNav = () => (
-      <Stack.Navigator headerMode='screen'>
-        <Stack.Screen
-          name='Home'
-          component={TabNav}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name='EntryDetail'
-          component={EntryDetail}
-          options={{
-            headerTintColor: white,
-            headerStyle: { backgroundColor: purple },
-          }}
-        />
+      <Stack.Navigator {...stackNavigatorConfig}>
+        <Stack.Screen {...stackConfig.TabNav} />
+        <Stack.Screen {...stackConfig.EntryDetail} />
       </Stack.Navigator>
     );
 
     return (
       <Provider store={createStore(reducer)}>
         <View style={{ flex: 1 }}>
-          <UdaciStatusBar />
+          <UdaciStatusBar backgroundColor={purple} barStyle='light-content' />
           <NavigationContainer>
             <MainNav />
           </NavigationContainer>
