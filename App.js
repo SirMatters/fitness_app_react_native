@@ -10,6 +10,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { white, purple } from './utils/colors';
 import Constants from 'expo-constants';
+import EntryDetail from './components/EntryDetail';
+import { createStackNavigator } from '@react-navigation/stack';
 
 export default class App extends React.Component {
   render() {
@@ -69,17 +71,39 @@ export default class App extends React.Component {
       );
     }
 
+    const TabNav = () => (
+      <Tab.Navigator {...TabNavigatorConfig}>
+        <Tab.Screen {...RouteConfigs['History']} />
+        <Tab.Screen {...RouteConfigs['AddEntry']} />
+      </Tab.Navigator>
+    );
+
+    const Stack = createStackNavigator();
+    const MainNav = () => (
+      <Stack.Navigator headerMode='screen'>
+        <Stack.Screen
+          name='Home'
+          component={TabNav}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name='EntryDetail'
+          component={EntryDetail}
+          options={{
+            headerTintColor: white,
+            headerStyle: { backgroundColor: purple },
+          }}
+        />
+      </Stack.Navigator>
+    );
+
     return (
       <Provider store={createStore(reducer)}>
         <View style={{ flex: 1 }}>
           <UdaciStatusBar />
           <NavigationContainer>
-            <Tab.Navigator {...TabNavigatorConfig}>
-              <Tab.Screen {...RouteConfigs['History']} />
-              <Tab.Screen {...RouteConfigs['AddEntry']} />
-            </Tab.Navigator>
+            <MainNav />
           </NavigationContainer>
-          {/* <History /> */}
         </View>
       </Provider>
     );
