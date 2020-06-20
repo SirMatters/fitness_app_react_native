@@ -8,16 +8,62 @@ import {
 } from 'react-native';
 import { Foundation } from '@expo/vector-icons';
 import * as Location from 'expo-location';
+import * as Permissions from 'expo-permissions';
 import { purple, white } from '../utils/colors';
+import { calculateDirection } from '../utils/helpers';
 
 class Live extends React.Component {
   state = {
     coords: null,
-    status: 'granted',
+    status: null,
     direction: '',
   };
 
-  askPermission = () => {};
+  componentDidMount() {
+    Permissions.getAsync(Permissions.LOCATION)
+      .then(({ status }) => {
+        if (status === 'granted') {
+          return this.setLocation();
+        }
+
+        this.setState(() => ({ status }));
+      })
+      .catch((err) => {
+        console.warn('Error getting location permission: ', err);
+        this.setState(() => ({ status: 'undetermined' }));
+      });
+  }
+
+  askPermission = () => {
+    Permissions.askAsync(Permissions.LOCATION)
+      .then(({ status }) => {
+        if (status === 'granted') {
+          return this.setLocation();
+        }
+
+        this.setState(() => ({ status }));
+      })
+      .catch((err) => console.warn('Error asking location permission:', err));
+  };
+
+  setLocation = () => {
+    Location.watchPositionAsync(
+      {
+        enableHighAccuracy: true,
+        timeInterval: 1,
+        distanceInterval: 1,
+      },
+      ({ coords }) => {
+        const newDirection = calculateDirection(coords.heading);
+        const { direction } = this.state;
+        this.setState(() => ({
+          coords,
+          status: 'granted',
+          direction: newDirection,
+        }));
+      }
+    );
+  };
 
   render() {
     const { status, coords, direction } = this.state;
@@ -54,16 +100,20 @@ class Live extends React.Component {
       <View style={styles.container}>
         <View style={styles.directionContainer}>
           <Text style={styles.header}>You're heading</Text>
-          <Text style={styles.direction}>North</Text>
+          <Text style={styles.direction}>{direction}</Text>
         </View>
         <View style={styles.metricContainer}>
           <View style={styles.metric}>
             <Text style={[styles.header, { color: white }]}>Altitude</Text>
-            <Text style={[styles.subHeader, { color: white }]}>{200} Feet</Text>
+            <Text style={[styles.subHeader, { color: white }]}>
+              {Math.round(coords.altitude * 3.2808)} Feet
+            </Text>
           </View>
           <View style={styles.metric}>
             <Text style={[styles.header, { color: white }]}>Speed</Text>
-            <Text style={[styles.subHeader, { color: white }]}>{300} MPH</Text>
+            <Text style={[styles.subHeader, { color: white }]}>
+              {(coords.speed * 2.2369).toFixed(1)} MPH
+            </Text>
           </View>
         </View>
       </View>
