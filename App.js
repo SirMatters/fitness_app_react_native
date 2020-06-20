@@ -12,6 +12,7 @@ import { white, purple } from './utils/colors';
 import Constants from 'expo-constants';
 import EntryDetail from './components/EntryDetail';
 import { createStackNavigator } from '@react-navigation/stack';
+import Live from './components/Live';
 
 export default class App extends React.Component {
   render() {
@@ -39,6 +40,16 @@ export default class App extends React.Component {
             <FontAwesome name='plus-square' size={30} color={tintColor} />
           ),
           title: 'Add Entry',
+        },
+      },
+      Live: {
+        component: Live,
+        name: 'Live',
+        options: {
+          tabBarIcon: ({ tintColor }) => (
+            <Ionicons name='ios-speedometer' size={30} color={tintColor} />
+          ),
+          title: 'Live',
         },
       },
     };
@@ -75,6 +86,7 @@ export default class App extends React.Component {
       <Tab.Navigator {...tabNavigatorConfig}>
         <Tab.Screen {...routeConfigs.History} />
         <Tab.Screen {...routeConfigs.AddEntry} />
+        <Tab.Screen {...routeConfigs.Live} />
       </Tab.Navigator>
     );
 
