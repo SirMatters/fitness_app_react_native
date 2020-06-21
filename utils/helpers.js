@@ -6,6 +6,11 @@ import {
   FontAwesome,
 } from 'react-native-vector-icons';
 import { white, red, orange, blue, lightPurp, pink } from './colors.js';
+import AsyncStorage from '@react-native-community/async-storage';
+import { Notifications } from 'expo';
+import * as Premissions from 'expo-permissions';
+
+const NOTIFICATION_KEY = 'UdaciFitness:notifications';
 
 export function isBetween(num, x, y) {
   if (num >= x && num <= y) {
@@ -144,4 +149,46 @@ export function getDailyReminderValue() {
   return {
     today: "Hey! Don't forget to log your data today",
   };
+}
+
+export function clearLocalNotification() {
+  return AsyncStorage.removeItem(NOTIFICATION_KEY).then(
+    Notifications.cancelAllScheduledNotificationsAsync
+  );
+}
+
+function createNotification() {
+  return {
+    title: 'Log your stats',
+    body: "Don't forget to log your stats fro today!",
+    ios: {
+      sound: true,
+    },
+    android: {
+      sound: true,
+      priority: 'high',
+      sticky: false,
+      vibrate: true,
+    },
+  };
+}
+
+export async function setLocalNotification() {
+  const data = JSON.parse(await AsyncStorage.getItem(NOTIFICATION_KEY));
+  if (data === null) {
+    const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
+    if (status === 'granted') {
+      Notifications.cancelAllScheduledNotificationsAsync();
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.toDateString() + 1);
+      tomorrow.setHours(20);
+      tomorrow.setMinutes(0);
+      Notifications.scheduleLocalNotificationAsync(createNotification(), {
+        time: tomorrow,
+        repeat: 'day',
+      });
+
+      AsyncStorage.setItem(NOTIFICATION_KEY, JSON.stringify(true));
+    }
+  }
 }
